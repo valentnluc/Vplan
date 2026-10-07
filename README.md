@@ -48,9 +48,27 @@ Centro de Mando Personal unificado, sobrio y de alto rendimiento diseñado bajo 
 - `1`: Ir a pestaña **Estratégica**
 - `2`: Ir a pestaña **Táctica**
 - `3`: Ir a pestaña **Trinchera**
-- `Ctrl + K` / `Cmd + K` o `C`: Foco inmediato en el input de captura rápida
+- `C` o `Ctrl + K` / `Cmd + K`: **Foco inmediato en la barra de Captura Rápida**
+- `N`: Abrir modal de creación detallada de tarea
 
 ---
+
+## ⚡ Sintaxis del Parser de Captura Rápida
+
+Puedes capturar tareas al instante en el Task Stream usando tokens:
+- `[01]` a `[07]`: Asignar a uno de los 7 campos de vida (ej. `[03] Estudiar`).
+- `~min`: Duración en minutos (ej. `~45`, `~90`).
+- `!YYYY-MM-DD`: Fecha de agendamiento (ej. `!2026-08-25`).
+- `#id`: Vincular a un hito táctico.
+- `**deep**`: Marcar como Trabajo Profundo / Deep Work.
+
+*Ejemplo:* `[03] Revisión de cálculo estructural ~90 !2026-08-25 **deep**`
+
+---
+
+## 📅 Sincronización de Calendario
+
+El sistema opera por defecto con un `MockCalendarService` in-memory. Para sincronizar en tiempo real con tu cuenta real de Google Calendar, consulta la [Guía de Configuración de Google Calendar](docs/GOOGLE_CALENDAR_SETUP.md).
 
 ## 🛠️ Stack Tecnológico
 

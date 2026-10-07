@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session, joinedload
 
 from database import get_db
@@ -14,6 +14,7 @@ from schemas import (
     HitoTacticoUpdate,
     TareaSchema,
 )
+from services.google_apps_script_service import workspace_service
 
 router = APIRouter(tags=["tactica"])
 
@@ -36,15 +37,17 @@ def list_hitos_tacticos(db: Session = Depends(get_db)) -> List[HitoTactico]:
 )
 def create_hito_tactico(
     payload: HitoTacticoCreate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ) -> HitoTactico:
-    """Create a new tactical milestone."""
+    """Create a new tactical milestone and sync to V - Tactico in Google Calendar."""
     hito = HitoTactico(
         id=str(uuid.uuid4()),
         hito_estrategico_id=payload.hito_estrategico_id,
         campo_id=payload.campo_id,
         titulo=payload.titulo,
         fecha_limite=payload.fecha_limite,
+        hora_limite=payload.hora_limite or "10:00",
         progreso_manual=payload.progreso_manual or 0.0,
         dependencia_hito_id=payload.dependencia_hito_id,
         estado=payload.estado or "pendiente",
@@ -52,6 +55,20 @@ def create_hito_tactico(
     db.add(hito)
     db.commit()
     db.refresh(hito)
+
+    # Background sync to Google Calendar 'V - Tactico'
+    background_tasks.add_task(
+        workspace_service.sync_tactico,
+        {
+            "id": hito.id,
+            "titulo": hito.titulo,
+            "campo_id": hito.campo_id,
+            "fecha_limite": hito.fecha_limite.isoformat() if hito.fecha_limite else "",
+            "hora_limite": hito.hora_limite or "10:00",
+            "google_event_id": hito.id,
+        },
+    )
+
     return (
         db.query(HitoTactico)
         .options(joinedload(HitoTactico.campo))
@@ -64,9 +81,10 @@ def create_hito_tactico(
 def update_hito_tactico(
     hito_id: str,
     payload: HitoTacticoUpdate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ) -> HitoTactico:
-    """Partially update a tactical milestone."""
+    """Partially update a tactical milestone and sync to V - Tactico."""
     hito = db.query(HitoTactico).filter(HitoTactico.id == hito_id).first()
     if not hito:
         raise HTTPException(status_code=404, detail="Hito táctico no encontrado")
@@ -77,6 +95,20 @@ def update_hito_tactico(
 
     db.commit()
     db.refresh(hito)
+
+    # Background sync
+    background_tasks.add_task(
+        workspace_service.sync_tactico,
+        {
+            "id": hito.id,
+            "titulo": hito.titulo,
+            "campo_id": hito.campo_id,
+            "fecha_limite": hito.fecha_limite.isoformat() if hito.fecha_limite else "",
+            "hora_limite": hito.hora_limite or "10:00",
+            "google_event_id": hito.id,
+        },
+    )
+
     return (
         db.query(HitoTactico)
         .options(joinedload(HitoTactico.campo))
@@ -88,14 +120,18 @@ def update_hito_tactico(
 @router.delete("/tactica/{hito_id}", status_code=200)
 def delete_hito_tactico(
     hito_id: str,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ) -> dict:
-    """Delete a tactical milestone."""
+    """Delete a tactical milestone and delete event from V - Tactico."""
     hito = db.query(HitoTactico).filter(HitoTactico.id == hito_id).first()
     if not hito:
         raise HTTPException(status_code=404, detail="Hito táctico no encontrado")
     db.delete(hito)
     db.commit()
+
+    background_tasks.add_task(workspace_service.delete_tactico, hito_id)
+
     return {"deleted": True}
 
 

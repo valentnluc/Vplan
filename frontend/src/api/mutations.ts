@@ -1,4 +1,4 @@
-﻿import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from './client'
 import type { Tarea, HitoEstrategico, HitoTactico } from '../types'
 
@@ -325,3 +325,44 @@ export function useDeleteHitoTactico() {
     },
   })
 }
+
+// ── 14. Workspace Configuration & Sync ────────────────────────────────────────
+export function useConfigureWorkspace() {
+  const qc = useQueryClient()
+  return useMutation<any, Error, import('../types').WorkspaceConfigPayload>({
+    mutationFn: (payload) => apiClient.post('/workspace/configure', payload).then(r => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['workspace', 'status'] })
+    },
+  })
+}
+
+export function useTestWorkspace() {
+  return useMutation<import('../types').WorkspaceTestResponse, Error, import('../types').WorkspaceConfigPayload>({
+    mutationFn: (payload) => apiClient.post('/workspace/test', payload).then(r => r.data),
+  })
+}
+
+export function useSyncAllWorkspace() {
+  const qc = useQueryClient()
+  return useMutation<any, Error, void>({
+    mutationFn: () => apiClient.post('/workspace/sync-all').then(r => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['workspace', 'status'] })
+    },
+  })
+}
+
+export function usePullWorkspace() {
+  const qc = useQueryClient()
+  return useMutation<any, Error, void>({
+    mutationFn: () => apiClient.post('/workspace/pull').then(r => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['tareas'] })
+      qc.invalidateQueries({ queryKey: ['tactica'] })
+      qc.invalidateQueries({ queryKey: ['estrategica'] })
+    },
+  })
+}
+
+

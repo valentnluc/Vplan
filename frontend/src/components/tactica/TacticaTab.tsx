@@ -1,7 +1,7 @@
-﻿import { useState, useMemo, useCallback, useRef } from 'react'
-import { Plus, X, ChevronLeft, ChevronRight, Check, Target, Edit3, Trash2 } from 'lucide-react'
+import { useState, useMemo, useCallback, useRef } from 'react'
+import { Plus, X, ChevronLeft, ChevronRight, Check, Target, Edit3, Trash2, ListTree, Sparkles } from 'lucide-react'
 import { useTactica, useEstrategica } from '../../api/queries'
-import { useCreateHitoTactico, useUpdateHitoTactico, useDeleteHitoTactico } from '../../api/mutations'
+import { useCreateHitoTactico, useUpdateHitoTactico, useDeleteHitoTactico, useDesglosarHito } from '../../api/mutations'
 import { CAMPOS_CONFIG, getCampoConfig, formatDateISO, addDays, getMonday } from '../../types'
 import type { HitoTactico } from '../../types'
 
@@ -16,12 +16,14 @@ function HitoTacticoModal({ fechaDef, hitoToEdit, onClose }: HitoTacticoModalPro
   const { mutate: createHito, isPending: isCreating } = useCreateHitoTactico()
   const { mutate: updateHito, isPending: isUpdating } = useUpdateHitoTactico()
   const { mutate: deleteHito, isPending: isDeleting } = useDeleteHitoTactico()
+  const { mutate: desglosarHito, isPending: isDesglosando } = useDesglosarHito()
   const { data: hitosEstrategicos } = useEstrategica()
 
   const [titulo, setTitulo] = useState(hitoToEdit?.titulo || '')
   const [campoId, setCampoId] = useState(hitoToEdit?.campo_id || '03')
   const [hitoEstrategicoId, setHitoEstrategicoId] = useState<string>(hitoToEdit?.hito_estrategico_id || '')
   const [fechaLimite, setFechaLimite] = useState(hitoToEdit?.fecha_limite || fechaDef)
+  const [desglosadoFeedback, setDesglosadoFeedback] = useState(false)
   const [horaLimite, setHoraLimite] = useState(
     hitoToEdit?.hora_limite ||
       (hitoToEdit?.dependencia_hito_id?.startsWith('hora:')
@@ -74,9 +76,25 @@ function HitoTacticoModal({ fechaDef, hitoToEdit, onClose }: HitoTacticoModalPro
 
   const handleDelete = useCallback(() => {
     if (hitoToEdit?.id) {
-      deleteHito(hitoToEdit.id, { onSuccess: onClose })
+      if (window.confirm(`¿Estás seguro de eliminar el entregable "${hitoToEdit.titulo}"?`)) {
+        deleteHito(hitoToEdit.id, { onSuccess: onClose })
+      }
     }
   }, [hitoToEdit, deleteHito, onClose])
+
+  const handleDesglosar = useCallback(() => {
+    if (hitoToEdit?.id) {
+      desglosarHito(hitoToEdit.id, {
+        onSuccess: () => {
+          setDesglosadoFeedback(true)
+          setTimeout(() => {
+            setDesglosadoFeedback(false)
+            onClose()
+          }, 1200)
+        },
+      })
+    }
+  }, [hitoToEdit, desglosarHito, onClose])
 
   const selectedCampo = getCampoConfig(campoId)
 
@@ -169,11 +187,37 @@ function HitoTacticoModal({ fechaDef, hitoToEdit, onClose }: HitoTacticoModalPro
               />
             </div>
           </div>
+
+          {/* Desglosar Button in Edit Mode */}
+          {isEditing && (
+            <div className="pt-2 border-t border-[#1f1f1f]">
+              <button
+                type="button"
+                onClick={handleDesglosar}
+                disabled={isDesglosando || desglosadoFeedback}
+                className="w-full py-1.5 px-3 bg-[#181818] hover:bg-[#222222] border border-[#333333] hover:border-white text-white text-xs font-bold transition flex items-center justify-center gap-1.5 disabled:opacity-50"
+                title="Genera automáticamente 3 tareas accionables en el Inbox a partir de este hito táctico"
+              >
+                {desglosadoFeedback ? (
+                  <>
+                    <Sparkles size={12} className="text-yellow-400" />
+                    <span>¡3 TAREAS CREADAS EN INBOX!</span>
+                  </>
+                ) : (
+                  <>
+                    <ListTree size={12} />
+                    <span>{isDesglosando ? 'DESGLOSANDO...' : 'DESGLOSAR EN 3 TAREAS HIJAS'}</span>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between pt-2.5 border-t border-[#222222]">
           {isEditing ? (
             <button
+              type="button"
               onClick={handleDelete}
               disabled={isDeleting}
               className="flex items-center gap-1 px-3 py-1.5 bg-transparent border border-red-900 text-red-400 hover:bg-red-950 text-xs font-mono font-bold transition"
@@ -187,12 +231,14 @@ function HitoTacticoModal({ fechaDef, hitoToEdit, onClose }: HitoTacticoModalPro
 
           <div className="flex gap-2">
             <button
+              type="button"
               onClick={onClose}
               className="px-3 py-1.5 bg-[#181818] hover:bg-[#222222] text-neutral-300 text-xs font-mono border border-[#262626] transition"
             >
               CANCELAR
             </button>
             <button
+              type="button"
               onClick={handleSubmit}
               disabled={isCreating || isUpdating || !titulo.trim()}
               className="px-4 py-1.5 bg-white hover:bg-neutral-200 text-black text-xs font-mono font-bold transition disabled:opacity-40"

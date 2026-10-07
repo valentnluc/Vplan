@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import init_db
-from routers import campos, estrategica, tactica, trinchera, calendar as cal_router
+from routers import campos, estrategica, tactica, trinchera, calendar as cal_router, workspace
 
 app = FastAPI(
     title="Centro de Mando Personal",
@@ -32,9 +32,16 @@ app.include_router(estrategica.router, prefix="/api")
 app.include_router(tactica.router, prefix="/api")
 app.include_router(trinchera.router, prefix="/api")
 app.include_router(cal_router.router, prefix="/api")
+app.include_router(workspace.router, prefix="/api")
 
 
 @app.get("/health", tags=["meta"])
 def health() -> dict:
     """Basic health check endpoint."""
     return {"status": "ok"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+

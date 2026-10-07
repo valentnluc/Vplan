@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { X, Check, Trash2, Target, AlertTriangle, Calendar, Clock, AlignLeft } from 'lucide-react'
 import { useAppStore } from '../../store/appStore'
 import { useCapturaTarea, useUpdateTarea, useDeleteTarea } from '../../api/mutations'
@@ -114,7 +114,9 @@ export default function TaskFormModal() {
 
   const handleDelete = () => {
     if (editingTask?.id) {
-      deleteTarea(editingTask.id, { onSuccess: closeTaskModal })
+      if (window.confirm(`¿Estás seguro de eliminar la tarea "${editingTask.titulo}"?`)) {
+        deleteTarea(editingTask.id, { onSuccess: closeTaskModal })
+      }
     }
   }
 

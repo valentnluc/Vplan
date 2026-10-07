@@ -98,7 +98,7 @@ export default function CapturaInput({ onCapture }: CapturaInputProps) {
   )
 
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1.5 font-mono">
       <div className="relative">
         <input
           ref={inputRef}
@@ -106,7 +106,7 @@ export default function CapturaInput({ onCapture }: CapturaInputProps) {
           onChange={e => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Captura rápida… [03] Estudiar ~90 !2026-08-20"
-          className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-slate-500 pr-8"
+          className="w-full bg-[#0a0a0a] border border-[#262626] px-2.5 py-1.5 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-white transition font-sans pr-8"
         />
         {parsed.es_deep_work && (
           <Zap
@@ -118,26 +118,32 @@ export default function CapturaInput({ onCapture }: CapturaInputProps) {
 
       {/* Live parse preview */}
       {value.trim() && (
-        <div className="flex items-center gap-1.5 flex-wrap px-1">
+        <div className="flex items-center gap-1.5 flex-wrap px-0.5 text-[9px]">
           <span
-            className="px-1.5 py-0.5 rounded text-[9px] font-medium"
-            style={{ backgroundColor: campo.color + '33', color: campo.color }}
+            className="px-1.5 py-0.2 font-bold text-black"
+            style={{ backgroundColor: campo.color }}
           >
-            {campo.nombre}
+            [{campo.id}] {campo.nombre}
           </span>
-          <span className="text-[9px] text-slate-500">{parsed.duracion_min} min</span>
+          <span className="text-neutral-400 bg-[#141414] px-1 py-0.2 border border-[#222222]">
+            {parsed.duracion_min}m
+          </span>
           {parsed.fecha_agendada && (
-            <span className="text-[9px] text-slate-500">📅 {parsed.fecha_agendada}</span>
-          )}
-          {parsed.hito_tactico_id && (
-            <span className="text-[9px] text-slate-500">→ #{parsed.hito_tactico_id}</span>
-          )}
-          {parsed.es_deep_work && (
-            <span className="text-[9px] text-yellow-500 flex items-center gap-0.5">
-              <Zap size={8} /> Deep Work
+            <span className="text-neutral-300 bg-[#141414] px-1 py-0.2 border border-[#222222]">
+              📅 {parsed.fecha_agendada}
             </span>
           )}
-          <span className="text-[9px] text-slate-400 truncate max-w-[140px]" title={parsed.titulo}>
+          {parsed.hito_tactico_id && (
+            <span className="text-neutral-300 bg-[#141414] px-1 py-0.2 border border-[#222222]">
+              → #{parsed.hito_tactico_id}
+            </span>
+          )}
+          {parsed.es_deep_work && (
+            <span className="text-yellow-400 font-bold bg-[#141414] px-1 py-0.2 border border-[#222222] flex items-center gap-0.5">
+              <Zap size={8} /> DEEP WORK
+            </span>
+          )}
+          <span className="text-white font-sans font-medium truncate max-w-[140px]" title={parsed.titulo}>
             "{parsed.titulo}"
           </span>
         </div>
@@ -145,8 +151,8 @@ export default function CapturaInput({ onCapture }: CapturaInputProps) {
 
       {/* Hint */}
       {!value && (
-        <p className="text-[9px] text-slate-600 px-1">
-          [01–07] campo &nbsp;~min &nbsp;!fecha &nbsp;#hito &nbsp;**deep**
+        <p className="text-[8.5px] text-neutral-600 px-0.5">
+          [01–07] CAMPO &nbsp;~MIN &nbsp;!FECHA &nbsp;#HITO &nbsp;**DEEP**
         </p>
       )}
     </div>

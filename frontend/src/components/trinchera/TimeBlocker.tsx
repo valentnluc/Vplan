@@ -317,7 +317,9 @@ function CalendarTaskItem({ tarea, onDesagendar }: CalendarTaskItemProps) {
                 onPointerDown={e => e.stopPropagation()}
                 onClick={e => {
                   e.stopPropagation()
-                  deleteTarea(tarea.id)
+                  if (window.confirm(`¿Eliminar definitivamente "${tarea.titulo}"?`)) {
+                    deleteTarea(tarea.id)
+                  }
                 }}
                 className="p-0.5 text-neutral-400 hover:text-red-400 transition"
                 title="Eliminar tarea definitivamente"
@@ -397,7 +399,9 @@ function CalendarTaskItem({ tarea, onDesagendar }: CalendarTaskItemProps) {
             onPointerDown={e => e.stopPropagation()}
             onClick={e => {
               e.stopPropagation()
-              deleteTarea(tarea.id)
+              if (window.confirm(`¿Eliminar definitivamente "${tarea.titulo}"?`)) {
+                deleteTarea(tarea.id)
+              }
             }}
             className="p-1 text-neutral-500 hover:text-red-400 hover:bg-red-950/30 transition"
             title="Eliminar tarea definitivamente"

@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Plus, Check, ChevronDown, ChevronRight } from 'lucide-react'
 import { useAppStore } from '../../store/appStore'
@@ -15,6 +15,7 @@ export default function TaskStream() {
   const { mutate: toggleTarea } = useToggleTarea()
   const [sortMode, setSortMode] = useState<SortMode>('creacion')
   const [showCompleted, setShowCompleted] = useState(false)
+
 
   // Filter & Sort pending tasks in Inbox exclusively by sorting criteria
   const pendingTasks = useMemo(() => {

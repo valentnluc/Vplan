@@ -78,9 +78,11 @@ const TaskCard = memo(function TaskCard({
   const handleDelete = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation()
-      deleteTarea(tarea.id)
+      if (window.confirm(`¿Eliminar la tarea "${tarea.titulo}"?`)) {
+        deleteTarea(tarea.id)
+      }
     },
-    [tarea.id, deleteTarea],
+    [tarea, deleteTarea],
   )
 
   return (

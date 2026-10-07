@@ -33,3 +33,10 @@ export const useTareasSemana = (startDate: string) =>
       apiClient.get(`/trinchera/semana?start_date=${startDate}`).then(r => r.data),
     enabled: !!startDate,
   })
+
+export const useWorkspaceStatus = () =>
+  useQuery<import('../types').WorkspaceStatusResponse>({
+    queryKey: ['workspace', 'status'],
+    queryFn: () => apiClient.get('/workspace/status').then(r => r.data),
+    staleTime: 30000,
+  })

@@ -1,4 +1,4 @@
-﻿export interface Campo {
+export interface Campo {
   id: string
   nombre: string
   color_hex: string
@@ -77,7 +77,7 @@ export const CAMPOS_CONFIG = [
   { id: '01', nombre: 'Salud', color: '#a4e136' },
   { id: '02', nombre: 'Bienestar', color: '#38ad02' },
   { id: '03', nombre: 'Carrera y Educación', color: '#3b82f6' },
-  { id: '04', nombre: 'Finanzas', color: '#06b6d4' },
+  { id: '04', nombre: 'Finanzas', color: '#367ec0' },
   { id: '05', nombre: 'Relaciones', color: '#ff7b09' },
   { id: '06', nombre: 'Ocio y Creatividad', color: '#ffdf24' },
   { id: '07', nombre: 'Sistemas y Entorno', color: '#e22929' },
@@ -248,3 +248,29 @@ export function formatDateISO(date: Date): string {
 export function formatDateDisplay(date: Date, locale = 'es-AR'): string {
   return date.toLocaleDateString(locale, { day: 'numeric', month: 'short' })
 }
+
+export interface WorkspaceStatusResponse {
+  is_configured: boolean
+  web_app_url: string
+  api_key: string
+}
+
+export interface WorkspaceConfigPayload {
+  web_app_url: string
+  api_key?: string
+}
+
+export interface WorkspaceTestResponse {
+  success: boolean
+  message?: string
+  error?: string
+  data?: {
+    sheet_name?: string
+    sheet_url?: string
+    calendar_name?: string
+    calendar_id?: string
+    tasks_list_name?: string
+    tasks_list_id?: string
+  }
+}
+

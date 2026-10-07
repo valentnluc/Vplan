@@ -79,7 +79,6 @@ function HitoFormModal({ campoId, hitoToEdit, onClose }: HitoFormModalProps) {
   const [selectedCampoId, setSelectedCampoId] = useState(hitoToEdit?.campo_id || campoId)
   const [fechaInicio, setFechaInicio] = useState(hitoToEdit?.fecha_inicio || formatDateISO(new Date()))
   const [fechaTarget, setFechaTarget] = useState(hitoToEdit?.fecha_target || '2026-12-31')
-
   const campo = getCampoConfig(selectedCampoId)
   const isEditing = Boolean(hitoToEdit && hitoToEdit.id)
 
@@ -113,7 +112,9 @@ function HitoFormModal({ campoId, hitoToEdit, onClose }: HitoFormModalProps) {
 
   const handleDelete = useCallback(() => {
     if (hitoToEdit?.id) {
-      deleteHito(hitoToEdit.id, { onSuccess: onClose })
+      if (window.confirm(`¿Estás seguro de eliminar el hito estratégico "${hitoToEdit.titulo}"?`)) {
+        deleteHito(hitoToEdit.id, { onSuccess: onClose })
+      }
     }
   }, [hitoToEdit, deleteHito, onClose])
 
@@ -188,6 +189,7 @@ function HitoFormModal({ campoId, hitoToEdit, onClose }: HitoFormModalProps) {
         <div className="flex items-center justify-between pt-3 border-t border-[#222222]">
           {isEditing ? (
             <button
+              type="button"
               onClick={handleDelete}
               disabled={isDeleting}
               className="flex items-center gap-1 px-3 py-1.5 bg-transparent border border-red-900 text-red-400 hover:bg-red-950 text-xs font-mono font-bold transition"

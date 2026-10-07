@@ -30,7 +30,7 @@ def get_db() -> Generator[Session, None, None]:
 
 
 def init_db() -> None:
-    """Create all tables and seed initial data if not already present."""
+    """Create all tables and ensure default campos are present."""
     # Import models to ensure they are registered with Base
     from models import Campo, HitoEstrategico, HitoTactico, Tarea  # noqa: F401
 
@@ -39,9 +39,9 @@ def init_db() -> None:
     db = SessionLocal()
     try:
         _seed_campos(db)
-        _seed_demo_data(db)
     finally:
         db.close()
+
 
 
 def _seed_campos(db: Session) -> None:
@@ -70,7 +70,7 @@ def _seed_campos(db: Session) -> None:
         {
             "id": "03",
             "nombre": "Carrera y Educación",
-            "color_hex": "#0a1b9b",
+            "color_hex": "#3b82f6",
             "tipo_flujo": "hitos",
             "google_calendar_id": "primary",
             "descripcion": "Desarrollo profesional, formación y aprendizaje continuo.",
